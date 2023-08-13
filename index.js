@@ -3,15 +3,14 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
+import { Server } from "socket.io"; // Импортируем Server из socket.io
 import * as socketIO from "socket.io";
 import { message, getMessages } from "./controllers/MessagesController.js";
 const app = express();
 dotenv.config();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
-const port = process.env.PORT || 3001;
-const port_server = process.env.PORT_SERVER || 3002;
 // DB
 mongoose
   .connect(process.env.URL)
@@ -26,24 +25,27 @@ mongoose
 app.post("/auth/message", message);
 app.get("/auth/getMessages", getMessages);
 
-// server(socket )
+// Создаем http сервер
 const server = http.createServer(app);
-const io = new socketIO.Server(server);
-server.listen(port_server, () => {
-  console.log(`Server is running on port ${port_server}}`);
+// Создаем экземпляр Socket.IO и передаем сервер
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+// Обработка событий Socket.IO
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
 });
 
-io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
-  socket.on("message", (msg) => {
-    socket.msg = msg;
-  });
-  io.emit("getMessages", socket.msg);
-});
-//
-app.listen(port, (error) => {
+server.listen(process.env.PORT || 3001, (error) => {
   if (error) console.log(error, "err");
   else {
-    console.log(`${port} is running`);
+    console.log(` server  is running`);
   }
 });

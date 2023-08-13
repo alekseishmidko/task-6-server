@@ -7,7 +7,9 @@ export const message = async (req, res) => {
       user: user,
       text: text,
       key: Date.now(),
-      tags: tags,
+      tags: tags.map((item) => {
+        return `#${item}`;
+      }),
       dateOfCreate: format(new Date(), "dd.MM.yyyy HH:mm"),
     });
     const message = await newMessage.save();
