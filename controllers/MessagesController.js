@@ -7,9 +7,7 @@ export const message = async (req, res) => {
       user: user,
       text: text,
       key: Date.now(),
-      tags: tags.map((item) => {
-        return `#${item}`;
-      }),
+      tags: tags,
       dateOfCreate: format(new Date(), "dd.MM.yyyy HH:mm"),
     });
     const message = await newMessage.save();
@@ -25,8 +23,9 @@ export const message = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const allMessages = await MessageModel.find().exec();
-    console.log(allMessages);
-    res.json({ allMessages });
+    const allUnicTags = await MessageModel.distinct("tags");
+
+    res.json({ allMessages, allUnicTags });
   } catch (error) {
     console.log(error);
     res.status(500).json({

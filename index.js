@@ -36,8 +36,12 @@ const io = new Server(server, {
 });
 // Обработка событий Socket.IO
 io.on("connection", (socket) => {
-  console.log("A user connected");
-
+  console.log(`A user connected ${socket.id}`);
+  //
+  socket.on("message", (data) => {
+    console.log("socket message:", data);
+    io.emit("responce", data);
+  });
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
