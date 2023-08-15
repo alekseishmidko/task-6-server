@@ -3,6 +3,18 @@ import { format } from "date-fns";
 export const message = async (req, res) => {
   try {
     const { text, tags, user } = req.body;
+    function extractHashtags(inputString) {
+      const words = inputString.split(/\s+/); // Разбиваем строку на слова
+      const hashtags = [];
+
+      words.forEach((word) => {
+        if (word.startsWith("#")) {
+          hashtags.push(word.substring()); // Удаляем символ #
+        }
+      });
+
+      return hashtags;
+    }
     const newMessage = await MessageModel({
       user: user,
       text: text,
